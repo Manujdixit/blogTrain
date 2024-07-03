@@ -18,7 +18,7 @@ async function hashPassword(password: string) {
   return hashHex;
 }
 
-//user signin
+//user signup
 userRouter.post("/signup", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
@@ -68,7 +68,7 @@ userRouter.post("/signup", async (c) => {
   }
 });
 
-//user signup
+//user signin
 userRouter.post("/signin", async (c) => {
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,

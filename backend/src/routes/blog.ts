@@ -83,33 +83,33 @@ blogRouter.put("/:id", async (c) => {
 });
 
 // get blog
-// blogRouter.get("/:id", async (c) => {
-//   const id = Number(c.req.param("id"));
-//   const prisma = new PrismaClient({
-//     datasourceUrl: c.env.DATABASE_URL,
-//   }).$extends(withAccelerate());
+blogRouter.get("/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
 
-//   try {
-//     const blog = await prisma.blog.findFirst({
-//       where: { id },
-//       include: {
-//         author: {
-//           select: {
-//             id: true,
-//             name: true,
-//             username: true,
-//             profilePic: true,
-//             about: true,
-//           },
-//         },
-//       },
-//     });
+  try {
+    const blog = await prisma.blog.findFirst({
+      where: { id },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            profilePic: true,
+            about: true,
+          },
+        },
+      },
+    });
 
-//     return c.json(blog);
-//   } catch (error) {
-//     return c.json({ error }, 500);
-//   }
-// });
+    return c.json(blog);
+  } catch (error) {
+    return c.json({ error }, 500);
+  }
+});
 
 //delete blog
 blogRouter.delete("/:id", async (c) => {
