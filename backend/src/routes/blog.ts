@@ -83,33 +83,33 @@ blogRouter.put("/:id", async (c) => {
 });
 
 // get blog
-blogRouter.get("/:id", async (c) => {
-  const id = Number(c.req.param("id"));
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate());
+// blogRouter.get("/:id", async (c) => {
+//   const id = Number(c.req.param("id"));
+//   const prisma = new PrismaClient({
+//     datasourceUrl: c.env.DATABASE_URL,
+//   }).$extends(withAccelerate());
 
-  try {
-    const blog = await prisma.blog.findFirst({
-      where: { id },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            profilePic: true,
-            about: true,
-          },
-        },
-      },
-    });
+//   try {
+//     const blog = await prisma.blog.findFirst({
+//       where: { id },
+//       include: {
+//         author: {
+//           select: {
+//             id: true,
+//             name: true,
+//             username: true,
+//             profilePic: true,
+//             about: true,
+//           },
+//         },
+//       },
+//     });
 
-    return c.json(blog);
-  } catch (error) {
-    return c.json({ error }, 500);
-  }
-});
+//     return c.json(blog);
+//   } catch (error) {
+//     return c.json({ error }, 500);
+//   }
+// });
 
 //delete blog
 blogRouter.delete("/:id", async (c) => {
@@ -165,7 +165,7 @@ blogRouter.get("/bulk", async (c) => {
     });
 
     return c.json({
-      data: blog,
+      blog,
       pagination: {
         currentPage: page,
         limit,
@@ -173,12 +173,12 @@ blogRouter.get("/bulk", async (c) => {
       },
     });
   } catch (error) {
-    return c.json({ error: error }, 500);
+    return c.json({ error }, 500);
   }
 });
 
 //get bulk of a users draft blog
-blogRouter.get("/:id/profile", async (c) => {
+blogRouter.get("/:id/drafts", async (c) => {
   const id = c.req.param("id");
   let page = 1;
   let limit = 10;
@@ -227,7 +227,7 @@ blogRouter.get("/:id/profile", async (c) => {
 });
 
 //get bulk of a users published blog
-blogRouter.get("/:id/profile", async (c) => {
+blogRouter.get("/:id/blogs", async (c) => {
   const id = c.req.param("id");
   let page = 1;
   let limit = 10;
