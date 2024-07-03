@@ -35,29 +35,6 @@ blogRouter.use("/*", async (c, next) => {
   }
 });
 
-blogRouter.use("/*", async (c, next) => {
-  const authHeader = c.req.header("authorization") || "";
-  if (!authHeader) {
-    c.status(401);
-    return c.json({ message: "Authorization header is missing" });
-  }
-  try {
-    const user = await verify(authHeader, c.env.JWT_SECRET);
-    const userId = user.id;
-    if (user) {
-      c.set("userId", userId as string);
-      await next();
-    } else {
-      c.status(403);
-      return c.json({ message: "Invalid token, access denied" });
-    }
-  } catch (error) {
-    console.error("Error during authorization:", error);
-    c.status(403);
-    return c.json({ message: "You are not logged in" });
-  }
-});
-
 //create blog
 blogRouter.post("/create", async (c) => {
   const body = await c.req.json();
@@ -71,9 +48,9 @@ blogRouter.post("/create", async (c) => {
         title: body.title,
         content: body.content,
         authorId: 1,
+        published: body.published,
       },
     });
-
     return c.json(blog);
   } catch (error) {
     return c.json({ error }, 500);
@@ -95,16 +72,17 @@ blogRouter.put("/:id", async (c) => {
         title: body.title,
         content: body.content,
         authorId: 1,
+        published: body.published,
       },
     });
 
     return c.json(blog);
   } catch (error) {
-    return c.json({ error }, 500);
+    return c.json({ " error": error }, 500);
   }
 });
 
-//get blog
+// get blog
 blogRouter.get("/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const prisma = new PrismaClient({
@@ -114,6 +92,17 @@ blogRouter.get("/:id", async (c) => {
   try {
     const blog = await prisma.blog.findFirst({
       where: { id },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            profilePic: true,
+            about: true,
+          },
+        },
+      },
     });
 
     return c.json(blog);
@@ -140,34 +129,147 @@ blogRouter.delete("/:id", async (c) => {
   }
 });
 
-//get bulk all blog
+//get all bulk blog
 blogRouter.get("/bulk", async (c) => {
+  let page = 1;
+  let limit = 10;
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
-    const blogs = await prisma.blog.findMany();
+    page = Number(c.req.query("page") || 1);
+    limit = Number(c.req.query("limit") || 10);
+    const skip = (page - 1) * limit;
 
-    return c.json(blogs);
+    const total = await prisma.blog.count({
+      where: { published: true },
+    });
+    const totalPages = Math.ceil(total / limit);
+
+    const blog = await prisma.blog.findMany({
+      where: { published: true },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            profilePic: true,
+            about: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+    });
+
+    return c.json({
+      data: blog,
+      pagination: {
+        currentPage: page,
+        limit,
+        totalPages,
+      },
+    });
+  } catch (error) {
+    return c.json({ error: error }, 500);
+  }
+});
+
+//get bulk of a users draft blog
+blogRouter.get("/:id/profile", async (c) => {
+  const id = c.req.param("id");
+  let page = 1;
+  let limit = 10;
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  try {
+    page = Number(c.req.query("page") || 1);
+    limit = Number(c.req.query("limit") || 10);
+    const skip = (page - 1) * limit;
+    const blogs = await prisma.user.findMany({
+      where: { id: Number(id) },
+      include: {
+        blogs: {
+          where: { published: false },
+          select: {
+            id: true,
+            title: true,
+            content: true,
+            datetime: true,
+          },
+          skip,
+          take: limit,
+        },
+      },
+    });
+
+    const total = await prisma.blog.count({
+      where: { published: false },
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    return c.json({
+      data: blogs,
+      pagination: {
+        currentPage: page,
+        limit,
+        totalPages,
+      },
+    });
   } catch (error) {
     return c.json({ error }, 500);
   }
 });
 
-//get bulk of a user blog
-blogRouter.get("/:id/blogs", async (c) => {
+//get bulk of a users published blog
+blogRouter.get("/:id/profile", async (c) => {
   const id = c.req.param("id");
+  let page = 1;
+  let limit = 10;
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
-    const blogs = await prisma.user.findFirst({
+    page = Number(c.req.query("page") || 1);
+    limit = Number(c.req.query("limit") || 10);
+    const skip = (page - 1) * limit;
+    const blogs = await prisma.user.findMany({
       where: { id: Number(id) },
-      include: { blogs: true },
+      include: {
+        blogs: {
+          where: { published: true },
+          select: {
+            id: true,
+            title: true,
+            content: true,
+            datetime: true,
+          },
+          skip,
+          take: limit,
+        },
+      },
     });
-    return c.json(blogs);
+
+    const total = await prisma.blog.count({
+      where: { published: true },
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    return c.json({
+      data: blogs,
+      pagination: {
+        currentPage: page,
+        limit,
+        totalPages,
+      },
+    });
   } catch (error) {
     return c.json({ error }, 500);
   }
