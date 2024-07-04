@@ -95,6 +95,24 @@ blogRouter.put("/:id", async (c) => {
   }
 });
 
+//delete blog
+blogRouter.delete("/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  try {
+    const blog = await prisma.blog.delete({
+      where: { id },
+    });
+
+    return c.json(blog.id);
+  } catch (error) {
+    return c.json({ error }, 500);
+  }
+});
+
 // get blog
 blogRouter.get("/:id", async (c) => {
   const id = Number(c.req.param("id"));
@@ -118,73 +136,8 @@ blogRouter.get("/:id", async (c) => {
       },
     });
 
-    return c.json(blog);
-  } catch (error) {
-    return c.json({ error }, 500);
-  }
-});
-
-//delete blog
-blogRouter.delete("/:id", async (c) => {
-  const id = Number(c.req.param("id"));
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate());
-
-  try {
-    const blog = await prisma.blog.delete({
-      where: { id },
-    });
-
-    return c.json(blog.id);
-  } catch (error) {
-    return c.json({ error }, 500);
-  }
-});
-
-//get all bulk blog
-blogRouter.get("/bulk", async (c) => {
-  let page = 1;
-  let limit = 10;
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate());
-
-  try {
-    page = Number(c.req.query("page") || 1);
-    limit = Number(c.req.query("limit") || 10);
-    const skip = (page - 1) * limit;
-
-    const total = await prisma.blog.count({
-      where: { published: true },
-    });
-    const totalPages = Math.ceil(total / limit);
-
-    const blog = await prisma.blog.findMany({
-      where: { published: true },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            profilePic: true,
-            about: true,
-          },
-        },
-      },
-      skip,
-      take: limit,
-    });
-
-    return c.json({
-      blog,
-      pagination: {
-        currentPage: page,
-        limit,
-        totalPages,
-      },
-    });
+    // return c.json(blog);
+    return c.json("id endpoint", 200);
   } catch (error) {
     return c.json({ error }, 500);
   }
