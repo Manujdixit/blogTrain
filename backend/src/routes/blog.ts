@@ -136,8 +136,7 @@ blogRouter.get("/:id", async (c) => {
       },
     });
 
-    // return c.json(blog);
-    return c.json("id endpoint", 200);
+    return c.json(blog);
   } catch (error) {
     return c.json({ error }, 500);
   }
