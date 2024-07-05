@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { sign } from "hono/jwt";
+import { signupInput } from "@manujdixit/blogtrain-common";
 
 export const userRouter = new Hono<{
   Bindings: { DATABASE_URL: string; JWT_SECRET: string };
@@ -28,8 +29,28 @@ userRouter.post("/signup", async (c) => {
 
   // Ensure all required fields are present
   const { email, username, password, name } = body;
-  if (!email || !username || !password || !name) {
-    return c.json({ error: "Missing required fields" }, { status: 400 });
+
+  const { success } = signupInput.safeParse(body);
+  if (!success) {
+    return c.json(
+      {
+        error: "Inputs not correct",
+      },
+      400
+    );
+  }
+
+  //chek if user is already present based on username and email
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [{ email }, { username }],
+    },
+  });
+  if (existingUser) {
+    return c.json(
+      { error: "User with this email or username already exists" },
+      400
+    );
   }
 
   // Hash the password
@@ -50,9 +71,6 @@ userRouter.post("/signup", async (c) => {
         password: hashedPassword,
       },
     });
-
-    // Log the JWT_SECRET to ensure it's set
-    console.log("JWT_SECRET:", c.env.JWT_SECRET);
 
     // Ensure the JWT_SECRET is a string
     if (typeof c.env.JWT_SECRET !== "string") {
@@ -75,6 +93,16 @@ userRouter.post("/signin", async (c) => {
   }).$extends(withAccelerate());
 
   const body = await c.req.json();
+
+  const { success } = signupInput.safeParse(body);
+  if (!success) {
+    return c.json(
+      {
+        error: "Inputs not correct",
+      },
+      400
+    );
+  }
 
   const hashedPassword = await hashPassword(body.password);
 
