@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { sign } from "hono/jwt";
-import { signupInput } from "@manujdixit/blogtrain-common";
+import { signinInput, signupInput } from "@manujdixit/blogtrain-common";
 
 export const userRouter = new Hono<{
   Bindings: { DATABASE_URL: string; JWT_SECRET: string };
@@ -94,7 +94,7 @@ userRouter.post("/signin", async (c) => {
 
   const body = await c.req.json();
 
-  const { success } = signupInput.safeParse(body);
+  const { success } = signinInput.safeParse(body);
   if (!success) {
     return c.json(
       {
@@ -117,13 +117,6 @@ userRouter.post("/signin", async (c) => {
     if (!user) {
       c.status(403);
       return c.json({ error: "Invalid user" });
-    }
-    const isPasswordValid =
-      (await hashPassword(body.password)) === user.password;
-
-    if (!isPasswordValid) {
-      c.status(403);
-      return c.json({ error: "Invalid password" });
     }
 
     const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
