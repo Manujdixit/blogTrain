@@ -1,6 +1,9 @@
+import axios from "axios";
 import React, { useState, useMemo, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { useNavigate } from "react-router-dom";
+import { BACKEND_URL } from "../config";
 
 const Modal = ({ showModal, setShowModal, title, content }) => {
   const [currentDateTime] = useState(new Date());
@@ -71,6 +74,7 @@ export const Publish = () => {
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const navigate = useNavigate();
 
   const modules = useMemo(
     () => ({
@@ -99,6 +103,26 @@ export const Publish = () => {
     }
     console.log({ title, content });
     // Here you would typically send the data to your backend
+    axios
+      .post(
+        `${BACKEND_URL}/api/v1/blog/create`,
+        {
+          title,
+          content,
+          published: true,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        }
+      )
+      .then((response) => {
+        navigate(`/blog/${response.data.id}`);
+      })
+      .catch((error) => {
+        console.error("Publish failed:", error);
+      });
   };
 
   const wordCount =
