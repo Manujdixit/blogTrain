@@ -31,12 +31,12 @@ const BlogCard = ({ authorName, title, id, content, date }: BlogCardType) => {
           </div>
         </div>
 
-        <div className="text-xl font-semibold">{title}</div>
-        <div className="text-md font-thin ">
+        <div className="text-xl  font-semibold">{title}</div>
+        <div className="text-md font-light ">
           {content.slice(0, 100) + "..."}
         </div>
-        <div className="text-slate-500 text-sm font-thin pt-4">{`${Math.ceil(
-          content.length / 100
+        <div className="text-slate-500 text-sm font-extralight pt-4">{`${Math.ceil(
+          content.length / 200
         )} min read`}</div>
       </div>
     </Link>

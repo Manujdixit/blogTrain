@@ -14,7 +14,7 @@ const FullBlog = ({ blog }: { blog: Blog }) => {
   return (
     <>
       <div className="flex justify-center">
-        <div className="grid grid-cols-12 px-10 w-full pt-200 max-w-screen-xl pt-12 ">
+        <div className="grid grid-cols-12 px-10 w-full pt-200 max-w-screen-xl pt-12 gap-8">
           <div className="col-span-8 ">
             <div className="text-5xl font-extrabold">{blog.title}</div>
             <div className="text-slate-500 pt-2">
@@ -22,7 +22,7 @@ const FullBlog = ({ blog }: { blog: Blog }) => {
             </div>
             <div className="pt-2">{blog.content}</div>
           </div>
-          <div className="col-span-4 font-medium flex flex-row-reverse">
+          <div className="col-span-4 font-medium flex flex-row-reverse ">
             <div className="max-w-sm">
               <div className="mb-4 text-slate-600 text-lg">Author</div>
               <div className="flex">
