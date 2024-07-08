@@ -35,25 +35,25 @@ bulkRouter.use("/*", async (c, next) => {
   }
 });
 
-//get all bulk blogs
+// get all bulk blogs
 bulkRouter.get("/bulk", async (c) => {
-  // let page = 1;
-  // let limit = 10;
+  let page = 1;
+  let limit = 10;
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
-    // page = Number(c.req.query("page") || 1);
-    // limit = Number(c.req.query("limit") || 10);
-    // const skip = (page - 1) * limit;
+    page = Number(c.req.query("page") || 1);
+    limit = Number(c.req.query("limit") || 10);
+    const skip = (page - 1) * limit;
 
     const total = await prisma.blog.count({
       where: { published: true },
     });
-    // let totalPages = Math.ceil(total / limit);
+    let totalPages = Math.ceil(total / limit);
 
-    // if (totalPages == 0) totalPages = 1;
+    if (totalPages == 0) totalPages = 1;
 
     const bulk = await prisma.blog.findMany({
       // where: { id },
@@ -69,18 +69,18 @@ bulkRouter.get("/bulk", async (c) => {
           },
         },
       },
-      // skip,
-      // take: limit,
+      skip,
+      take: limit,
     });
 
     return c.json({
       bulk,
-      // pagination: {
-      //   currentPage: page,
-      //   limit,
-      //   totalPages,
-      //   total,
-      // },
+      pagination: {
+        currentPage: page,
+        limit,
+        totalPages,
+        total,
+      },
     });
   } catch (error) {
     return c.json({ error }, 500);

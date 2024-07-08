@@ -1,8 +1,11 @@
 import { Avatar } from "@nextui-org/react";
 
+import { useEffect, useState } from "react";
+
 interface Blog {
   content: string;
   title: string;
+  summary: string;
   id: number;
   published: boolean;
   author: { name: string; about: string };
@@ -11,18 +14,75 @@ interface Blog {
 }
 
 const FullBlog = ({ blog }: { blog: Blog }) => {
+  console.log(blog);
+
+  // const [jsondata, setjsondata] = useState(null);
+
+  // useEffect(() => {
+  //   const downloadjson = async () => {
+  //     const contenturl = blog.content;
+  //     const urlref = ref(storage, contenturl);
+  //     // console.log(urlref);
+
+  //     try {
+  //       const downloadurl = await getDownloadURL(urlref);
+  //       console.log(downloadurl);
+  //       // const response = await fetch(downloadurl, {
+  //       //   mode: "no-cors",
+  //       // });
+  //       // console.log(response);
+
+  //       // const text = await response.json(); // Get the response as text
+  //       // console.log(text);
+
+  //       // const data = await JSON.parse(text); // Parse the text as JSON
+  //       // setjsondata(data);
+
+  //       getDownloadURL(urlref).then((url) => {
+  //         const xhr = new XMLHttpRequest();
+  //         xhr.responseType = "json";
+  //         xhr.onload = (event) => {
+  //           const blob = xhr.response;
+  //           console.log(blob);
+  //           setjsondata(blob);
+  //         };
+  //         xhr.open("GET", url);
+  //         xhr.send();
+  //       });
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error, error.code);
+  //     }
+  //   };
+  //   downloadjson();
+  // }, []);
   return (
     <>
       <div className="flex justify-center">
         <div className="grid grid-cols-12 px-10 w-full pt-200 max-w-screen-xl pt-12 gap-8">
-          <div className="col-span-8 ">
+          <div className="col-span-8">
             <div className="text-5xl font-extrabold">{blog.title}</div>
             <div className="text-slate-500 pt-2">
               Posted on {blog.formattedDate} at {blog.formattedTime}
             </div>
-            <div className="pt-2">{blog.content}</div>
+            {/* New Summary Section */}
+
+            <blockquote className="my-8 p-6 bg-gray-100 border-l-4 border-blue-500 italic text-lg text-gray-700 relative">
+              <svg
+                className="absolute top-0 left-0 transform -translate-x-3 -translate-y-3 h-8 w-8 text-blue-500 opacity-50"
+                fill="currentColor"
+                viewBox="0 0 32 32"
+              >
+                <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
+              </svg>
+              <p className="ml-4">{blog.summary}</p>
+            </blockquote>
+
+            {/* <div
+              className="pt-2"
+              dangerouslySetInnerHTML={{ __html: jsondata }}
+            ></div> */}
           </div>
-          <div className="col-span-4 font-medium flex flex-row-reverse ">
+          <div className="col-span-4 font-medium flex flex-row-reverse">
             <div className="max-w-sm">
               <div className="mb-4 text-slate-600 text-lg">Author</div>
               <div className="flex">

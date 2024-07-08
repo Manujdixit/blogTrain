@@ -4,11 +4,11 @@ interface BlogCardType {
   id: number;
   authorName: string;
   title: string;
-  content: string;
+  summary: string;
   date: string;
 }
 
-const BlogCard = ({ authorName, title, id, content, date }: BlogCardType) => {
+const BlogCard = ({ authorName, title, id, summary, date }: BlogCardType) => {
   const getInitials = (name: string) => {
     return name
       .split(" ")
@@ -33,11 +33,10 @@ const BlogCard = ({ authorName, title, id, content, date }: BlogCardType) => {
 
         <div className="text-xl  font-semibold">{title}</div>
         <div className="text-md font-light ">
-          {content.slice(0, 100) + "..."}
+          {summary && summary.trim() !== ""
+            ? `${summary.slice(0, 100)}...`
+            : "No summary available"}
         </div>
-        <div className="text-slate-500 text-sm font-extralight pt-4">{`${Math.ceil(
-          content.length / 200
-        )} min read`}</div>
       </div>
     </Link>
   );

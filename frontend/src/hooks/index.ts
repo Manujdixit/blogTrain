@@ -4,17 +4,26 @@ import axios from "axios";
 
 interface Blog {
   content: string;
+  summary: string;
   title: string;
   id: number;
   published: boolean;
-  author: { name: string };
+  author: { name: string; about: string };
   formattedDate: string;
   formattedTime: string;
 }
 
+interface BlogCardType {
+  id: number;
+  authorName: string;
+  title: string;
+  summary: string;
+  date: string;
+}
+
 export const useBlogs = (page: number) => {
   const [loading, setLoading] = useState(true);
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [blogs, setBlogs] = useState<BlogCardType[]>([]);
   const [totalpages, settotalpages] = useState<number>(1);
 
   useEffect(() => {
@@ -28,6 +37,8 @@ export const useBlogs = (page: number) => {
             },
           }
         );
+        console.log("API response:", res.data);
+
         const formattedBlogs = res.data.bulk.map((blogData: any) => {
           const dateTime = new Date(blogData.datetime);
 
@@ -40,13 +51,22 @@ export const useBlogs = (page: number) => {
           const formattedDate = `${day}/${month}/${year}`;
           const formattedTime = `${hours}:${minutes}`;
 
+          // Log 2: Log each blog data before formatting
+          console.log("Original Blog Data:", blogData);
+
           return {
             ...blogData,
+            summary: blogData.summary,
             formattedDate,
             formattedTime,
           };
         });
+
+        // Log 3: Log the formatted blogs
+        console.log("Formatted Blogs:", formattedBlogs);
+
         setBlogs(formattedBlogs);
+
         settotalpages(res.data.meta.totalPages);
       } catch (error) {
         console.log(error);
@@ -56,6 +76,8 @@ export const useBlogs = (page: number) => {
     };
     fetchdata();
   }, [page]);
+
+  console.log("final blogs:", blogs);
 
   return { loading, blogs, totalpages };
 };

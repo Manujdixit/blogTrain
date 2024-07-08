@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +12,6 @@ const Modal = ({ showModal, setShowModal, title, content }) => {
   const formattedTime = `${currentDateTime.toLocaleTimeString()}`;
 
   useEffect(() => {
-    // Add event listener to detect clicks outside the modal
     const handleOutsideClick = (e) => {
       if (showModal && !e.target.closest(".modal-content")) {
         setShowModal(false);
@@ -71,6 +70,7 @@ const Modal = ({ showModal, setShowModal, title, content }) => {
 
 export const Publish = () => {
   const [title, setTitle] = useState("");
+  const [summary, setsummary] = useState("");
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
   const [showPreview, setShowPreview] = useState(false);
@@ -87,46 +87,78 @@ export const Publish = () => {
         [{ script: "sub" }, { script: "super" }],
         [{ indent: "-1" }, { indent: "+1" }],
         [{ color: [] }, { background: [] }],
-        ["link", "image", "video"],
+        ["link", "image"],
         ["clean"],
       ],
     }),
     []
   );
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     if (title.trim() === "" || content.trim() === "") {
       setError("Title and content cannot be empty");
       return;
     }
-    console.log({ title, content });
-    // Here you would typically send the data to your backend
-    axios
-      .post(
-        `${BACKEND_URL}/api/v1/blog/create`,
-        {
-          title,
-          content,
-          published: true,
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-          },
-        }
-      )
-      .then((response) => {
-        navigate(`/blog/${response.data.id}`);
-      })
-      .catch((error) => {
-        console.error("Publish failed:", error);
-      });
+
+    // try {
+    //   const filename = `${Date.now()}_${title.replace(/\s+/g, "_")}.json`;
+    //   const storageRef = ref(storage, `blogPosts/${filename}`);
+
+    //   const blogPostData = JSON.stringify({
+    //     content,
+    //   });
+
+    //   await uploadString(storageRef, blogPostData, "raw", {
+    //     contentType: "application/json",
+    //   });
+
+    //   const downloadURL = await getDownloadURL(storageRef);
+    //   console.log("Blog post uploaded successfully. URL:", downloadURL);
+    //   console.log(encodeURIComponent(filename));
+
+    //   // navigate(`/blog/${encodeURIComponent(filename)}`);
+
+    //   axios
+    //     .post(
+    //       `${BACKEND_URL}/api/v1/blog/create`,
+    //       {
+    //         title,
+    //         summary,
+    //         content: downloadURL,
+    //         published: true,
+    //       },
+    //       {
+    //         headers: {
+    //           Authorization: localStorage.getItem("token"),
+    //         },
+    //       }
+    //     )
+    //     .then((response) => {
+    //       navigate(`/blog/${response.data.id}`);
+    //     })
+    //     .catch((error) => {
+    //       console.error("Publish failed:", error);
+    //     });
+    // }
+    try {
+    } catch (error) {
+      console.error("Error uploading blog post: ", error);
+      setError("Failed to publish blog post");
+    }
   };
 
   const wordCount =
     content.trim() === "" ? 0 : content.trim().split(/\s+/).length;
+
+  const calculateReadingTime = (wordCount: number) => {
+    const wordsPerMinute = 50;
+    const minutes = wordCount / wordsPerMinute;
+    return Math.max(1, Math.round(minutes));
+  };
+
+  const readingTime = calculateReadingTime(wordCount);
 
   const handlePreview = () => {
     setShowPreview(true);
@@ -156,6 +188,23 @@ export const Publish = () => {
         </div>
         <div className="mb-4">
           <label
+            htmlFor="title"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Summary
+          </label>
+          <input
+            type="text"
+            id="title"
+            value={summary}
+            onChange={(e) => setsummary(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="Enter your blog title"
+            required
+          />
+        </div>
+        <div className="mb-4">
+          <label
             htmlFor="content"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
@@ -168,7 +217,9 @@ export const Publish = () => {
             modules={modules}
             className=""
           />
-          <p className="text-sm text-gray-500">Word count: {wordCount}</p>
+          <p className="text-sm text-gray-500">
+            Time to read: {readingTime} min
+          </p>
           <div className="flex gap-4 mt-4">
             <button
               type="button"

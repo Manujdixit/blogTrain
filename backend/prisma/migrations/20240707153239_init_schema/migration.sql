@@ -16,6 +16,7 @@ CREATE TABLE "User" (
 CREATE TABLE "Blog" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
+    "summary" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "published" BOOLEAN NOT NULL,
     "authorId" INTEGER NOT NULL,
