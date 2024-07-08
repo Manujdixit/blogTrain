@@ -1,6 +1,9 @@
 import { Avatar } from "@nextui-org/react";
-
 import { useEffect, useState } from "react";
+import { storage } from "../config";
+
+const BUCKET_ID = import.meta.env.VITE_APP_APPWRITE_BUCKET_ID;
+console.log("bucket id: ", BUCKET_ID);
 
 interface Blog {
   content: string;
@@ -14,47 +17,30 @@ interface Blog {
 }
 
 const FullBlog = ({ blog }: { blog: Blog }) => {
-  console.log(blog);
+  const [htmlContent, setHtmlContent] = useState("");
+  console.log(blog.content);
+  console.log(typeof blog.content);
 
-  // const [jsondata, setjsondata] = useState(null);
+  useEffect(() => {
+    if (blog.content) {
+      fetchhtmlcontent(blog.content);
+    }
+  }, [blog.content]);
 
-  // useEffect(() => {
-  //   const downloadjson = async () => {
-  //     const contenturl = blog.content;
-  //     const urlref = ref(storage, contenturl);
-  //     // console.log(urlref);
+  async function fetchhtmlcontent(fileId: string) {
+    try {
+      const response = await fetch(blog.content);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      console.log(response);
+      const content = await response.text();
+      setHtmlContent(content);
+    } catch (error) {
+      console.error("error fetching html contents: ", error);
+    }
+  }
 
-  //     try {
-  //       const downloadurl = await getDownloadURL(urlref);
-  //       console.log(downloadurl);
-  //       // const response = await fetch(downloadurl, {
-  //       //   mode: "no-cors",
-  //       // });
-  //       // console.log(response);
-
-  //       // const text = await response.json(); // Get the response as text
-  //       // console.log(text);
-
-  //       // const data = await JSON.parse(text); // Parse the text as JSON
-  //       // setjsondata(data);
-
-  //       getDownloadURL(urlref).then((url) => {
-  //         const xhr = new XMLHttpRequest();
-  //         xhr.responseType = "json";
-  //         xhr.onload = (event) => {
-  //           const blob = xhr.response;
-  //           console.log(blob);
-  //           setjsondata(blob);
-  //         };
-  //         xhr.open("GET", url);
-  //         xhr.send();
-  //       });
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error, error.code);
-  //     }
-  //   };
-  //   downloadjson();
-  // }, []);
   return (
     <>
       <div className="flex justify-center">
@@ -77,10 +63,10 @@ const FullBlog = ({ blog }: { blog: Blog }) => {
               <p className="ml-4">{blog.summary}</p>
             </blockquote>
 
-            {/* <div
+            <div
               className="pt-2"
-              dangerouslySetInnerHTML={{ __html: jsondata }}
-            ></div> */}
+              dangerouslySetInnerHTML={{ __html: htmlContent }}
+            ></div>
           </div>
           <div className="col-span-4 font-medium flex flex-row-reverse">
             <div className="max-w-sm">

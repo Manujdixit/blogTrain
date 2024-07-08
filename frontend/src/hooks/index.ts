@@ -37,7 +37,6 @@ export const useBlogs = (page: number) => {
             },
           }
         );
-        console.log("API response:", res.data);
 
         const formattedBlogs = res.data.bulk.map((blogData: any) => {
           const dateTime = new Date(blogData.datetime);
@@ -51,9 +50,6 @@ export const useBlogs = (page: number) => {
           const formattedDate = `${day}/${month}/${year}`;
           const formattedTime = `${hours}:${minutes}`;
 
-          // Log 2: Log each blog data before formatting
-          console.log("Original Blog Data:", blogData);
-
           return {
             ...blogData,
             summary: blogData.summary,
@@ -62,14 +58,11 @@ export const useBlogs = (page: number) => {
           };
         });
 
-        // Log 3: Log the formatted blogs
-        console.log("Formatted Blogs:", formattedBlogs);
-
         setBlogs(formattedBlogs);
 
-        settotalpages(res.data.meta.totalPages);
+        settotalpages(res.data.pagination.totalPages);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
       } finally {
         setLoading(false);
       }
@@ -77,7 +70,7 @@ export const useBlogs = (page: number) => {
     fetchdata();
   }, [page]);
 
-  console.log("final blogs:", blogs);
+  // console.log("final blogs:", blogs);
 
   return { loading, blogs, totalpages };
 };
@@ -109,12 +102,12 @@ export const useBlog = ({ id }: { id: string }) => {
           formattedTime,
         };
         setBlog(formattedBlog);
-        console.log(formattedBlog);
+        // console.log(formattedBlog);
 
         setLoading(false);
       })
       .catch((err) => {
-        console.log(err);
+        // console.log(err);
         setLoading(false);
       });
   }, [id]);

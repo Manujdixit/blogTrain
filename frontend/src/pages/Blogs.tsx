@@ -37,13 +37,9 @@ export const Blogs = () => {
               ))}
               <div className="p-5 flex justify-center">
                 <Pagination
-                  showShadow
                   total={totalpages}
                   page={currentpage}
                   onChange={handlePageChange}
-                  initialPage={1}
-                  showControls={true}
-                  variant="bordered"
                 />
               </div>
             </>

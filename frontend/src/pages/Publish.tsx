@@ -4,6 +4,17 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../config";
+import { storage } from "../config";
+import { ID } from "appwrite";
+
+const BUCKET_ID = import.meta.env.VITE_APP_APPWRITE_BUCKET_ID;
+// console.log(BUCKET_ID);
+
+const ENDPOINT = import.meta.env.VITE_APP_APPWRITE_ENDPOINT;
+// console.log(ENDPOINT);
+
+const PROJECT_ID = import.meta.env.VITE_APP_APPWRITE_PROJECT_ID;
+// console.log(PROJECT_ID);
 
 const Modal = ({ showModal, setShowModal, title, content }) => {
   const [currentDateTime] = useState(new Date());
@@ -74,6 +85,12 @@ export const Publish = () => {
   const [content, setContent] = useState("");
   const [error, setError] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
+
+  //appwrite
+  // const [htmlContent, setHtmlContent] = useState("");
+
   const navigate = useNavigate();
 
   const modules = useMemo(
@@ -101,51 +118,73 @@ export const Publish = () => {
       setError("Title and content cannot be empty");
       return;
     }
-
-    // try {
-    //   const filename = `${Date.now()}_${title.replace(/\s+/g, "_")}.json`;
-    //   const storageRef = ref(storage, `blogPosts/${filename}`);
-
-    //   const blogPostData = JSON.stringify({
-    //     content,
-    //   });
-
-    //   await uploadString(storageRef, blogPostData, "raw", {
-    //     contentType: "application/json",
-    //   });
-
-    //   const downloadURL = await getDownloadURL(storageRef);
-    //   console.log("Blog post uploaded successfully. URL:", downloadURL);
-    //   console.log(encodeURIComponent(filename));
-
-    //   // navigate(`/blog/${encodeURIComponent(filename)}`);
-
-    //   axios
-    //     .post(
-    //       `${BACKEND_URL}/api/v1/blog/create`,
-    //       {
-    //         title,
-    //         summary,
-    //         content: downloadURL,
-    //         published: true,
-    //       },
-    //       {
-    //         headers: {
-    //           Authorization: localStorage.getItem("token"),
-    //         },
-    //       }
-    //     )
-    //     .then((response) => {
-    //       navigate(`/blog/${response.data.id}`);
-    //     })
-    //     .catch((error) => {
-    //       console.error("Publish failed:", error);
-    //     });
-    // }
     try {
+      setIsUploading(true);
+      const blogPostData = content;
+      if (!blogPostData) return;
+
+      // Create a Blob from the HTML content
+      const htmlBlob = new Blob([blogPostData], { type: "text/html" });
+
+      // Generate a unique file name using a timestamp and the post title
+      const timestamp = Date.now();
+      const sanitizedTitle = title.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+      const fileName = `${timestamp}_${sanitizedTitle}.html`;
+
+      // Create a File object from the Blob
+      const htmlFile = new File([htmlBlob], fileName, {
+        type: "text/html",
+      });
+      if (!(htmlFile instanceof File)) {
+        console.error("Invalid htmlFile");
+        return;
+      }
+
+      console.log("htmlFile:", htmlFile);
+
+      const uniqueField = ID.unique();
+      console.log(uniqueField);
+
+      storage
+        .createFile(BUCKET_ID, uniqueField, htmlFile)
+        .then(function (response: any) {
+          console.log("file uploaded successfully: ", response);
+        });
+
+      setIsUploading(false);
+      setIsPosting(true);
+
+      const fileUrl = `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${uniqueField}/view?project=${PROJECT_ID}`;
+
+      axios
+        .post(
+          `${BACKEND_URL}/api/v1/blog/create`,
+          {
+            title,
+            summary,
+            content: fileUrl,
+            published: true,
+          },
+          {
+            headers: {
+              Authorization: localStorage.getItem("token"),
+            },
+          }
+        )
+        .then((response) => {
+          console.log("Database post successful:", response);
+          setIsPosting(false);
+          if (!setIsPosting) {
+            navigate(`/blog/${response.data.id}`);
+          }
+        })
+        .catch((error) => {
+          console.error("Publish failed:", error);
+          setIsUploading(false);
+          setIsPosting(false);
+        });
     } catch (error) {
       console.error("Error uploading blog post: ", error);
-      setError("Failed to publish blog post");
     }
   };
 
@@ -225,16 +264,28 @@ export const Publish = () => {
               type="button"
               onClick={handlePreview}
               className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={isUploading && isPosting}
             >
               Preview
             </button>
             <button
               type="submit"
               className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={isUploading && isPosting}
             >
-              Publish Blog Post
+              {isUploading
+                ? "Uploading..."
+                : isPosting
+                ? "Publishing..."
+                : "Publish Blog Post"}
             </button>
           </div>
+          {(isUploading || isPosting) && (
+            <div className="mt-4 text-sm text-gray-600">
+              {isUploading && <p>Uploading file to storage...</p>}
+              {isPosting && <p>Saving post to database...</p>}
+            </div>
+          )}
         </div>
       </form>
       <Modal

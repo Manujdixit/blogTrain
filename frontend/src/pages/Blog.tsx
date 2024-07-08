@@ -8,7 +8,7 @@ export const Blog = () => {
   const { loading, blog } = useBlog({
     id: id || "",
   });
-  console.log(blog);
+  // console.log(blog);
 
   return (
     <div>
