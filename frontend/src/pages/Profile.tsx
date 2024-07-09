@@ -1,7 +1,17 @@
 import { useEffect, useState } from "react";
+import { profileBlogs } from "../hooks";
+// import { Pagination } from "@nextui-org/react";
+import BlogCard from "../components/ProfileBlogs";
 
 export const Profile = () => {
   const [username, setusername] = useState("");
+  const { loading, blogs } = profileBlogs();
+
+  // console.log(total);
+  // const handlePageChange = (pageNumber: number) => {
+  //   setcurrentpage(pageNumber);
+  // };
+
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
     if (storedUsername) {
@@ -35,22 +45,21 @@ export const Profile = () => {
             <div className="text-white text-3xl "> Blog Posts</div>
             <br />
             <div className="grid grid-cols-3 gap-10">
-              <div className="rounded-3xl bg-[#19191b] flex p-5 flex-col cursor-pointer">
-                <div className="text-xl text-white mb-10">
-                  BLoggginfg is good
-                </div>
-                <div className="flex-grow">
-                  <div className="text-sm text-white">
-                    John Doe is a software engineer with a passion for building
-                    innovative web applications. He has been working in the
-                    industry for over 5 years and has a strong background in
-                    full-stack development.
-                  </div>
-                </div>
-                <div className="text-slate-50 text-right cursor-pointer">
-                  Read more {"->"}
-                </div>
-              </div>
+              {loading ? (
+                <>
+                  <h1 className="text-white">loading</h1>
+                </>
+              ) : (
+                <>
+                  {blogs.map((blog) => (
+                    <BlogCard
+                      id={blog.id}
+                      title={blog.title}
+                      summary={blog.summary}
+                    />
+                  ))}
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -146,17 +146,17 @@ blogRouter.get("/:id", async (c) => {
 //get bulk of a users published blog
 blogRouter.get("/profile/blogs", async (c) => {
   const authorId = c.get("userId");
-  let page = 1;
-  let limit = 3;
+  // let page = 1;
+  // let limit = 3;
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
-    page = Number(c.req.query("page") || 1);
-    limit = Number(c.req.query("limit") || 3);
-    const skip = (page - 1) * limit;
-    const blogs = await prisma.user.findMany({
+    // page = Number(c.req.query("page") || 1);
+    // limit = Number(c.req.query("limit") || 3);
+    // const skip = (page - 1) * limit;
+    const blogs = await prisma.user.findUnique({
       where: { id: Number(authorId) },
       include: {
         blogs: {
@@ -166,25 +166,25 @@ blogRouter.get("/profile/blogs", async (c) => {
             title: true,
             summary: true,
           },
-          skip,
-          take: limit,
+          // skip,
+          // take: limit,
         },
       },
     });
 
-    const total = await prisma.blog.count({
-      where: { published: true },
-    });
+    // const total = await prisma.blog.count({
+    //   where: { published: true },
+    // });
 
-    const totalPages = Math.ceil(total / limit);
+    // const totalPages = Math.ceil(total / limit);
 
     return c.json({
       data: blogs,
-      pagination: {
-        currentPage: page,
-        limit,
-        totalPages,
-      },
+      // pagination: {
+      //   currentPage: page,
+      //   limit,
+      //   totalPages,
+      // },
     });
   } catch (error) {
     return c.json({ error }, 500);

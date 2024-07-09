@@ -65,24 +65,32 @@ export const useBlogs = (page: number) => {
   return { loading, blogs, totalpages };
 };
 
-export const profileBlogs = (page:number) => {
+export const profileBlogs = () => {
   const [loading, setLoading] = useState(true);
-  const [blogs, setBlogs] = useState<BlogCardType[]>([]);
-  const [totalpages, settotalpages] = useState<number>(1);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
 
   useEffect(() => {
     const fetchdata = async () => {
       try {
         const res = await axios.get(
-          `${BACKEND_URL}/api/v1/blog/profile/blogs?page=${page}`,
+          `${BACKEND_URL}/api/v1/blog/profile/blogs`,
           {
             headers: {
               Authorization: localStorage.getItem("token"),
             },
           }
         );
+        setBlogs(res.data.data.blogs);
+      } catch (error) {
+        console.error("error fetching blogs: ", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchdata();
+  }, []);
 
-  return;
+  return { loading, blogs };
 };
 
 export const useBlog = ({ id }: { id: string }) => {
@@ -112,8 +120,6 @@ export const useBlog = ({ id }: { id: string }) => {
           formattedTime,
         };
         setBlog(formattedBlog);
-        // console.log(formattedBlog);
-
         setLoading(false);
       })
       .catch((err) => {
