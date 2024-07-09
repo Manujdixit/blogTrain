@@ -174,9 +174,8 @@ export const Publish = () => {
         .then((response) => {
           console.log("Database post successful:", response);
           setIsPosting(false);
-          if (!setIsPosting) {
-            navigate(`/blog/${response.data.id}`);
-          }
+
+          navigate(`/blog/${response.data.id}`);
         })
         .catch((error) => {
           console.error("Publish failed:", error);
