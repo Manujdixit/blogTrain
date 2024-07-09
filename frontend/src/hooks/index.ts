@@ -14,11 +14,11 @@ interface Blog {
 }
 
 interface BlogCardType {
+  author: any;
+  formattedDate: string;
   id: number;
-  authorName: string;
   title: string;
   summary: string;
-  date: string;
 }
 
 export const useBlogs = (page: number) => {
@@ -107,7 +107,7 @@ export const useBlog = ({ id }: { id: string }) => {
         setLoading(false);
       })
       .catch((err) => {
-        // console.log(err);
+        console.log(err);
         setLoading(false);
       });
   }, [id]);

@@ -16,14 +16,14 @@ const ENDPOINT = import.meta.env.VITE_APP_APPWRITE_ENDPOINT;
 const PROJECT_ID = import.meta.env.VITE_APP_APPWRITE_PROJECT_ID;
 // console.log(PROJECT_ID);
 
-const Modal = ({ showModal, setShowModal, title, content }) => {
+const Modal = ({ showModal, setShowModal, title, content }: any) => {
   const [currentDateTime] = useState(new Date());
 
   const formattedDate = `${currentDateTime.toLocaleDateString()}`;
   const formattedTime = `${currentDateTime.toLocaleTimeString()}`;
 
   useEffect(() => {
-    const handleOutsideClick = (e) => {
+    const handleOutsideClick = (e: any) => {
       if (showModal && !e.target.closest(".modal-content")) {
         setShowModal(false);
       }
@@ -111,7 +111,7 @@ export const Publish = () => {
     []
   );
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setError("");
     if (title.trim() === "" || content.trim() === "") {

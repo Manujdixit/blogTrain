@@ -1,22 +1,10 @@
 import { Avatar } from "@nextui-org/react";
 import { useEffect, useState } from "react";
-import { storage } from "../config";
 
 const BUCKET_ID = import.meta.env.VITE_APP_APPWRITE_BUCKET_ID;
 console.log("bucket id: ", BUCKET_ID);
 
-interface Blog {
-  content: string;
-  title: string;
-  summary: string;
-  id: number;
-  published: boolean;
-  author: { name: string; about: string };
-  formattedDate: string;
-  formattedTime: string;
-}
-
-const FullBlog = ({ blog }: { blog: Blog }) => {
+const FullBlog = ({ blog }: any) => {
   const [htmlContent, setHtmlContent] = useState("");
   console.log(blog.content);
   console.log(typeof blog.content);
@@ -27,7 +15,7 @@ const FullBlog = ({ blog }: { blog: Blog }) => {
     }
   }, [blog.content]);
 
-  async function fetchhtmlcontent(fileId: string) {
+  async function fetchhtmlcontent(_fileId: string) {
     try {
       const response = await fetch(blog.content);
       if (!response.ok) {
