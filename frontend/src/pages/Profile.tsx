@@ -8,6 +8,7 @@ export const Profile = () => {
       setusername(storedUsername);
     }
   }, []);
+
   return (
     <div className="">
       <div className="bg-[#0F0F10] min-h-screen flex gap-5 px-20">
@@ -50,8 +51,6 @@ export const Profile = () => {
                   Read more {"->"}
                 </div>
               </div>
-              <div className="min-h-96 rounded-3xl bg-[#19191b]">asdf</div>
-              <div className="min-h-96 rounded-3xl bg-[#19191b]">asdf</div>
             </div>
           </div>
         </div>

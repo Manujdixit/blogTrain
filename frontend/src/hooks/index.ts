@@ -37,19 +37,15 @@ export const useBlogs = (page: number) => {
             },
           }
         );
-
         const formattedBlogs = res.data.bulk.map((blogData: any) => {
           const dateTime = new Date(blogData.datetime);
-
           const year = dateTime.getFullYear();
           const month = dateTime.getMonth() + 1;
           const day = dateTime.getDate();
           const hours = dateTime.getHours();
           const minutes = dateTime.getMinutes();
-
           const formattedDate = `${day}/${month}/${year}`;
           const formattedTime = `${hours}:${minutes}`;
-
           return {
             ...blogData,
             summary: blogData.summary,
@@ -57,22 +53,36 @@ export const useBlogs = (page: number) => {
             formattedTime,
           };
         });
-
         setBlogs(formattedBlogs);
-
         settotalpages(res.data.pagination.totalPages);
       } catch (error) {
-        // console.log(error);
       } finally {
         setLoading(false);
       }
     };
     fetchdata();
   }, [page]);
-
-  // console.log("final blogs:", blogs);
-
   return { loading, blogs, totalpages };
+};
+
+export const profileBlogs = (page:number) => {
+  const [loading, setLoading] = useState(true);
+  const [blogs, setBlogs] = useState<BlogCardType[]>([]);
+  const [totalpages, settotalpages] = useState<number>(1);
+
+  useEffect(() => {
+    const fetchdata = async () => {
+      try {
+        const res = await axios.get(
+          `${BACKEND_URL}/api/v1/blog/profile/blogs?page=${page}`,
+          {
+            headers: {
+              Authorization: localStorage.getItem("token"),
+            },
+          }
+        );
+
+  return;
 };
 
 export const useBlog = ({ id }: { id: string }) => {

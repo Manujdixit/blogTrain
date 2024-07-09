@@ -143,67 +143,18 @@ blogRouter.get("/:id", async (c) => {
   }
 });
 
-//get bulk of a users draft blog
-blogRouter.get("/drafts", async (c) => {
-  const authorId = c.get("userId");
-  let page = 1;
-  let limit = 10;
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate());
-
-  try {
-    page = Number(c.req.query("page") || 1);
-    limit = Number(c.req.query("limit") || 10);
-    const skip = (page - 1) * limit;
-    const blogs = await prisma.user.findMany({
-      where: { id: Number(authorId) },
-      include: {
-        blogs: {
-          where: { published: false },
-          select: {
-            id: true,
-            title: true,
-            content: true,
-            datetime: true,
-          },
-          skip,
-          take: limit,
-        },
-      },
-    });
-
-    const total = await prisma.blog.count({
-      where: { published: false },
-    });
-
-    const totalPages = Math.ceil(total / limit);
-
-    return c.json({
-      data: blogs,
-      pagination: {
-        currentPage: page,
-        limit,
-        totalPages,
-      },
-    });
-  } catch (error) {
-    return c.json({ error }, 500);
-  }
-});
-
 //get bulk of a users published blog
-blogRouter.get("/:id/blogs", async (c) => {
+blogRouter.get("/profile/blogs", async (c) => {
   const authorId = c.get("userId");
   let page = 1;
-  let limit = 10;
+  let limit = 3;
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
     page = Number(c.req.query("page") || 1);
-    limit = Number(c.req.query("limit") || 10);
+    limit = Number(c.req.query("limit") || 3);
     const skip = (page - 1) * limit;
     const blogs = await prisma.user.findMany({
       where: { id: Number(authorId) },
@@ -213,8 +164,7 @@ blogRouter.get("/:id/blogs", async (c) => {
           select: {
             id: true,
             title: true,
-            content: true,
-            datetime: true,
+            summary: true,
           },
           skip,
           take: limit,

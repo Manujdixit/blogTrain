@@ -86,3 +86,28 @@ bulkRouter.get("/bulk", async (c) => {
     return c.json({ error }, 500);
   }
 });
+
+//get user info
+bulkRouter.get("/user", async (c) => {
+  const authorId = c.get("userId");
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: Number(authorId) },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        // profilePic: true,
+        // about: true,
+      },
+    });
+
+    return c.json({ user });
+  } catch (error) {
+    return c.json({ error }, 500);
+  }
+});
