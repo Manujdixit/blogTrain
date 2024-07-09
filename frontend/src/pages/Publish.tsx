@@ -8,17 +8,11 @@ import { storage } from "../config";
 import { ID } from "appwrite";
 
 const BUCKET_ID = import.meta.env.VITE_APP_APPWRITE_BUCKET_ID;
-// console.log(BUCKET_ID);
-
 const ENDPOINT = import.meta.env.VITE_APP_APPWRITE_ENDPOINT;
-// console.log(ENDPOINT);
-
 const PROJECT_ID = import.meta.env.VITE_APP_APPWRITE_PROJECT_ID;
-// console.log(PROJECT_ID);
 
 const Modal = ({ showModal, setShowModal, title, content }: any) => {
   const [currentDateTime] = useState(new Date());
-
   const formattedDate = `${currentDateTime.toLocaleDateString()}`;
   const formattedTime = `${currentDateTime.toLocaleTimeString()}`;
 
@@ -28,7 +22,6 @@ const Modal = ({ showModal, setShowModal, title, content }: any) => {
         setShowModal(false);
       }
     };
-
     document.addEventListener("mousedown", handleOutsideClick);
 
     return () => {
@@ -88,9 +81,6 @@ export const Publish = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
 
-  //appwrite
-  // const [htmlContent, setHtmlContent] = useState("");
-
   const navigate = useNavigate();
 
   const modules = useMemo(
@@ -140,10 +130,7 @@ export const Publish = () => {
         return;
       }
 
-      console.log("htmlFile:", htmlFile);
-
       const uniqueField = ID.unique();
-      console.log(uniqueField);
 
       storage
         .createFile(BUCKET_ID, uniqueField, htmlFile)
@@ -172,9 +159,7 @@ export const Publish = () => {
           }
         )
         .then((response) => {
-          console.log("Database post successful:", response);
           setIsPosting(false);
-
           navigate(`/blog/${response.data.id}`);
         })
         .catch((error) => {

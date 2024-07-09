@@ -7,6 +7,7 @@ import { Blogs } from "./pages/Blogs";
 import Protected from "./components/Protected";
 import Layout from "./components/Layout";
 import { Publish } from "./pages/Publish";
+import { Profile } from "./pages/Profile";
 // import Home from "./pages/Home";
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
             <Route path="/blog/:id" element={<Blog />} />
             <Route path="/blogs" element={<Blogs />} />
             <Route path="/publish" element={<Publish />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
         </Routes>
         <Routes></Routes>
