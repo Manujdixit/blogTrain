@@ -8,7 +8,7 @@ export const Welcome = () => {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       navigate("/blogs");
-    }, 7000);
+    }, 2000);
 
     return () => clearTimeout(timeoutId);
   }, []);
