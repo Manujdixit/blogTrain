@@ -30,7 +30,7 @@ export const useBlogs = (page: number) => {
     const fetchdata = async () => {
       try {
         const res = await axios.get(
-          `${BACKEND_URL}/api/v1/bulk/bulk?page=${page}&limit=10`,
+          `${BACKEND_URL}/api/v1/bulk/bulk?page=${page}&limit=7`,
           {
             headers: {
               Authorization: localStorage.getItem("token"),

@@ -38,14 +38,14 @@ bulkRouter.use("/*", async (c, next) => {
 // get all bulk blogs
 bulkRouter.get("/bulk", async (c) => {
   let page = 1;
-  let limit = 10;
+  let limit = 8;
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
     page = Number(c.req.query("page") || 1);
-    limit = Number(c.req.query("limit") || 10);
+    limit = Number(c.req.query("limit") || 8);
     const skip = (page - 1) * limit;
 
     const total = await prisma.blog.count({
@@ -69,6 +69,7 @@ bulkRouter.get("/bulk", async (c) => {
           },
         },
       },
+      orderBy: { datetime: "desc" },
       skip,
       take: limit,
     });
